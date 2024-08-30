@@ -13,6 +13,7 @@ The model for communication is a line of sight communication with simple free-sp
 The energy of computation is modelled as: energy proportional to clock frequency cubed with constant as effective switched capacitance
 ### Model Input and Output
 Inputs: The inputs to your model defines the trajectory of the UAV which include distinct waypoints along the start and end position
+
 Output: The model outputs the total energy consumption for a given trajectory. The QoS could be a constraint, such as communication quality, latency, or signal strength between the drone and the mobile devices.
 ## Optimization
 Since the optimization is based on this model, a model based optimization technique called Bayesian Optimization is used. There are several reasons to choose this method. First, the model is a black box which no closed form is know. Secondly, the model is expensive to evaluate as the simulation runs in real time. Baysian optimizatin is particularly useful in this case because it creates a surrogate model to approximate the objective function and uses an acquisition function to guide the exploration of the input space.
