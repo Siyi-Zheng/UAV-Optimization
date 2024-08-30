@@ -10,35 +10,14 @@ Before optimization, a realistic model of the drone's dynamics, the end users, t
 ### Communication Model
 The model for communication is a line of sight communication with simple free-space path-loss model. A constant speed propagation delay model and Friis Propagation loss model fron ns-3 is used.
 ### Computational Model
-The energy of computation is modelled as : energy proportional to clock frequency cubed with constant as effective switched capacitance
+The energy of computation is modelled as: energy proportional to clock frequency cubed with constant as effective switched capacitance
 ### Model Input and Output
-Inputs (Trajectory Parameters): The inputs to your model defines the trajectory of the UAV which include distinct waypoints along the start and end position
+Inputs: The inputs to your model defines the trajectory of the UAV which include distinct waypoints along the start and end position
 Output: The model outputs the total energy consumption for a given trajectory. The QoS could be a constraint, such as communication quality, latency, or signal strength between the drone and the mobile devices.
 ## Optimization
 Since the optimization is based on this model, a model based optimization technique called Bayesian Optimization is used. There are several reasons to choose this method. First, the model is a black box which no closed form is know. Secondly, the model is expensive to evaluate as the simulation runs in real time. Baysian optimizatin is particularly useful in this case because it creates a surrogate model to approximate the objective function and uses an acquisition function to guide the exploration of the input space.
 ### Objective Function and Constrains
 Objective: Minimize the total energy consumption of the drone 
 Constrains: The quality of service constrain is applied to the problem as a soft constrain (incorporated into the objective function as a penalty)
-### Optimization Steps
-Step 1: Initialize the Process:
-
-Select a few initial trajectories randomly and evaluate their energy consumption using your model.
-Store the evaluated trajectories and their energy consumption as the initial dataset.
-Step 2: Build the Surrogate Model:
-
-Use the Gaussian Process (or any other surrogate model) to approximate the objective function based on the initial evaluations.
-Step 3: Optimize the Acquisition Function:
-
-Maximize the acquisition function (e.g., Expected Improvement) to select the next trajectory to evaluate. This is done by using the surrogate model’s predictions and uncertainty.
-Step 4: Evaluate the New Trajectory:
-
-Input the selected trajectory into your drone model to get the energy consumption.
-If the QoS constraint is violated, either reject the trajectory (hard constraint) or penalize the objective function.
-Step 5: Update the Surrogate Model:
-
-Update the Gaussian Process model with the new data point (the new trajectory and its energy consumption).
-Step 6: Repeat:
-
-Continue this process iteratively: optimizing the acquisition function, evaluating the new trajectory, and updating the surrogate model, until convergence or a stopping condition is reached (e.g., a budget on the number of evaluations or time).
 
 
