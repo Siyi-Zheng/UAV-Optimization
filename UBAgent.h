@@ -12,21 +12,20 @@ class UBAgent : public QObject
     Q_OBJECT
 public:
     explicit UBAgent(QObject *parent = nullptr);
-    
+
     void writeToFile(const std::string& message);
+    void calculateEnergyAndUpdateBattery(double timeStep);
+    void emergencyLanding();
 
 public slots:
     void startAgent();
 
 protected slots:
     void setMAV(Vehicle* mav);
-
     void vehicleAddedEvent(Vehicle* mav);
     void vehicleRemovedEvent(Vehicle* mav);
-
     void armedChangedEvent(bool armed);
     void flightModeChangedEvent(QString mode);
-
     void dataReadyEvent(quint8 srcID, QByteArray data);
     void missionTracker();
 
@@ -57,7 +56,6 @@ protected:
 protected:    
     Vehicle* m_mav;
     UBNetwork* m_net;
-
     QTimer* m_timer;
 };
 
