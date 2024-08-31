@@ -1,62 +1,38 @@
-#ifndef UBAGENT_H
-#define UBAGENT_H
+#!/bin/bash
 
-#include <QObject>
+# Path to the log file
+LOG_FILE="/home/anc-install/mission_log.txt"
 
-class QTimer;
-class Vehicle;
-class UBNetwork;
+# Check if the log file exists
+if [ -e "$LOG_FILE" ]; then
+    # Empty the log file
+    > "$LOG_FILE" || { echo "Failed to clear the log file."; exit 1; }
+    echo "Log file has been emptied."
+else
+    # Create the log file if it does not exist
+    touch "$LOG_FILE" || { echo "Failed to create the log file."; exit 1; }
+    echo "Log file did not exist and has been created."
+fi
 
-class UBAgent : public QObject
-{
-    Q_OBJECT
-public:
-    explicit UBAgent(QObject *parent = nullptr);
+# Set the working directory to the UB-ANC-Agent build directory
+cd ~/ub-anc/build-agent || { echo "Directory ~/ub-anc/build-agent does not exist."; exit 1; }
 
-    void writeToFile(const std::string& message);
-    void calculateEnergyAndUpdateBattery(double timeStep);
-    void emergencyLanding();
+# Run qmake to generate Makefiles
+qmake ../UB-ANC-Agent/ || { echo "qmake failed."; exit 1; }
 
-public slots:
-    void startAgent();
+# Compile the project
+make || { echo "make failed."; exit 1; }
 
-protected slots:
-    void setMAV(Vehicle* mav);
-    void vehicleAddedEvent(Vehicle* mav);
-    void vehicleRemovedEvent(Vehicle* mav);
-    void armedChangedEvent(bool armed);
-    void flightModeChangedEvent(QString mode);
-    void dataReadyEvent(quint8 srcID, QByteArray data);
-    void missionTracker();
+# Copy the compiled agent to the target directory
+cp ~/ub-anc/build-agent/agent/release/agent ~/ub-anc/emulator/mav/agent || { echo "cp failed."; exit 1; }
 
-protected:
-    void stageIdle();
-    void stageTakeoff();
-    void stageMission();
-    void stageLand();
+# Change to the emulator directory
+cd ~/ub-anc/emulator || { echo "Directory ~/ub-anc/emulator does not exist."; exit 1; }
 
-protected:
-    enum EMissionStage {
-        STAGE_IDLE,
-        STAGE_TAKEOFF,
-        STAGE_MISSION,
-        STAGE_LAND,
-    } m_mission_stage;
+# Set up the objects
+./setup_objects.sh 3 || { echo "setup_objects.sh failed."; exit 1; }
 
-    struct SMissionData {
-        int stage;
-        int tick;
+# Start the emulator
+./start_emulator.sh || { echo "start_emulator.sh failed."; exit 1; }
 
-        void reset() {
-            stage = 0;
-            tick = 0;
-        }
-    } m_mission_data;
-
-protected:    
-    Vehicle* m_mav;
-    UBNetwork* m_net;
-    QTimer* m_timer;
-};
-
-#endif // UBAGENT_H
+echo "Build and deployment completed successfully."
